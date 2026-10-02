@@ -1,0 +1,4 @@
+#ifndef _KERNEL_ENTRYPOINT
+#define _KERNEL_ENTRYPOINT
+
+#endif
