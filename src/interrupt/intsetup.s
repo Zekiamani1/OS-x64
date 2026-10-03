@@ -27,8 +27,6 @@ call_generic_handler:
     mov es, ax
     mov fs, ax
     mov gs, ax
-    pop rax
-    popf
 
     ; give rsp as argument, because main_interrupt_handler take InterruptFrame address
     mov rdi, rsp
