@@ -13,6 +13,7 @@ SIZEOF_PAGE_TABLE equ 4096
 PT_ADDR_MASK equ 0xffffffffff000 ; because the 3 last bit for flags
 PT_PRESENT equ 1                 ; marks the entry as in use
 PT_READABLE equ 2                ; marks the entry as r/w
+HUGE_PAGE   equ 1 << 7        ; PS bit in PDE
 
 ENTRIES_PER_PT equ 512
 SIZEOF_PT_ENTRY equ 8
@@ -99,10 +100,7 @@ bootstrap:
     mov DWORD [edi], PDT_ADDR & PT_ADDR_MASK | PT_PRESENT | PT_READABLE
 
     mov edi, PDT_ADDR
-    mov DWORD [edi], PT_ADDR & PT_ADDR_MASK | PT_PRESENT | PT_READABLE ;fill pdpt, pd, and Pt
-
-    mov edi, PT_ADDR
-    mov ebx, PT_PRESENT | PT_READABLE
+    mov ebx, PT_PRESENT | PT_READABLE | HUGE_PAGE
     mov ecx, ENTRIES_PER_PT      ; 1 full page table addresses 2MiB
 
 .SetEntry: ;fill page table
