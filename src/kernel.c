@@ -1,11 +1,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "kernel-entrypoint.h"
+#include "text/framebuffer.h"
 void kernel_setup(void) {
-while (true)
-{
-    /* code */
-}
+    print("anjay");
+    while (true)
+    {
+        /* code */
+    }
 
- 
 }

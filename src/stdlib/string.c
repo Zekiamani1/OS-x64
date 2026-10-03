@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "header/stdlib/string.h"
+#include "string.h"
 
 void* memset(void *s, int c, size_t n) {
     uint8_t *buf = (uint8_t*) s;
