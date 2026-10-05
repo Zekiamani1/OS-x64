@@ -6,8 +6,8 @@ EXTERN start64
 
 PML4T_ADDR equ 0x1000 ;PML4T address to be inserted into cr3
 PDPT_ADDR equ 0x2000 ;PDPT address to be pointed by PMLT entry
-PDT_ADDR equ 0x3000 ;PDT address to be pointed by PDPT entry
-PT_ADDR equ 0x4000 ;PT address to be pointed by PDE
+PDT_ADDR equ 0x3000 ;reserved for the final kernel page tables
+PT_ADDR equ 0x4000  ;reserved for the final kernel page tables
 SIZEOF_PAGE_TABLE equ 4096
 
 PT_ADDR_MASK equ 0xffffffffff000 ; because the 3 last bit for flags
@@ -38,6 +38,18 @@ GRAN_4K       equ 1 << 7
 SZ_32         equ 1 << 6
 LONG_MODE     equ 1 << 5
 
+MAGIC_NUMBER equ 0x1BADB002
+FLAGS        equ 0x0
+CHECKSUM     equ -MAGIC_NUMBER
+section .multiboot
+align 4
+
+    dd MAGIC_NUMBER
+    dd FLAGS
+    dd CHECKSUM
+
+section .bootstrap
+
 GDT_DATA equ 0x10
 GDT_CODE equ 0x08
 
@@ -65,19 +77,6 @@ GDT:
     .Pointer:
         dw $ - GDT - 1
         dq GDT
-
-
-MAGIC_NUMBER equ 0x1BADB002
-FLAGS        equ 0x0
-CHECKSUM     equ -MAGIC_NUMBER
-section .multiboot
-align 4
-
-    dd MAGIC_NUMBER
-    dd FLAGS
-    dd CHECKSUM
-
-section .bootstrap
 global bootstrap
 
 bootstrap:
@@ -97,17 +96,8 @@ bootstrap:
     mov DWORD [edi], PDPT_ADDR & PT_ADDR_MASK | PT_PRESENT | PT_READABLE
 
     mov edi, PDPT_ADDR
-    mov DWORD [edi], PDT_ADDR & PT_ADDR_MASK | PT_PRESENT | PT_READABLE
-
-    mov edi, PDT_ADDR
-    mov ebx, PT_PRESENT | PT_READABLE | HUGE_PAGE
-    mov ecx, ENTRIES_PER_PT      ; 1 full page table addresses 2MiB
-
-.SetEntry: ;fill page table
-    mov DWORD [edi], ebx
-    add ebx, PAGE_SIZE
-    add edi, SIZEOF_PT_ENTRY
-    loop .SetEntry               ; Set the next entry.
+    mov eax, PT_PRESENT | PT_READABLE | HUGE_PAGE
+    mov DWORD [edi], eax
 
     mov eax, cr4 ;enable PAE
     or eax, CR4_PAE_ENABLE
